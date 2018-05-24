@@ -1,0 +1,122 @@
+---
+title: "Untitled"
+author: "Vinoth Aryan Nagabosshanam"
+date: "March 20, 2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+# load package 'readxl' to load data from xlsx file
+
+```{r}
+library(MASS)
+#install.packages("ISLR")
+library(ISLR)
+
+```
+
+** now we are going to import the boston Data **
+
+```{r}
+# to colums name by using following
+colnames(Boston)
+str(Boston)
+```
+
+# Data Description of Boston dataset
+Description
+The Boston data frame has 506 rows and 14 columns.
+This data frame contains the following columns:
+**crim == per capita crime rate by town.**
+**zn**=proportion of residential land zoned for lots over 25,000 sq.ft.
+**indus**==proportion of non-retail business acres per town.
+**chas**=Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).
+**nox**==nitrogen oxides concentration (parts per 10 million).
+**rm**==average number of rooms per dwelling.
+**age**==proportion of owner-occupied units built prior to 1940.
+**dis**==weighted mean of distances to five Boston employment centres.
+**rad**==index of accessibility to radial highways.
+**tax**==full-value property-tax rate per \$10,000.
+**ptratio**==pupil-teacher ratio by town.
+**black**==1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town.
+**lstat**==lower status of the population (percent).
+**medv**==median value of owner-occupied homes in \$1000s.
+
+# Creat a simple linear regression 
+** as the the rule weare now selecting the subset based on the value we will selset the the best subset**
+```{r}
+plot(medv~lstat,Boston)
+fit1=lm(medv~lstat,data=Boston)
+fit1
+summary(fit1)
+
+names(fit1)
+confint(fit1)
+
+predict(fit1,data.frame(lstat=c(5,10,15)),interval="confidence")
+
+```
+
+## multiple linear  regresssion
+```{r}
+fit2=lm(medv~lstat+age,data=Boston)
+summary(fit2)
+```
+
+# now we are create mutiple linear regression model whith all variable 
+```{r}
+all_fit<-lm(medv~.,data = Boston)
+summary(all_fit)
+
+par(mfrow=c(2,2))
+plot(all_fit)
+```
+
+after see the p value of age and idus it look so high so we are those two variable and crerating a new model
+
+# now create the final multiple linear regression model 
+```{r}
+final_fit<-lm(medv~.-age-indus,data=Boston)
+summary(final_fit)
+par(mfrow=c(2,2))
+plot(final_fit)
+```
+
+## ### Nonlinear terms and Interactions
+```{r}
+fit5=lm(medv~lstat*age,Boston)
+summary(fit5)
+fit6=lm(medv~lstat +I(lstat^2),Boston)
+summary(fit6)
+attach(Boston)
+
+par(mfrow=c(1,1))
+plot(medv~lstat)
+points(lstat,fitted(fit6),col="red",pch=20)
+fit7=lm(medv~poly(lstat,4))
+points(lstat,fitted(fit7),col="blue",pch=20)
+plot(1:20,1:20,pch=1:20,cex=2)
+```
+
+###Qualitative predictors
+
+```{r}
+# fix(Carseats)
+names(Carseats)
+summary(Carseats)
+fit1=lm(Sales~.+Income:Advertising+Age:Price,Carseats)
+summary(fit1)
+par(mfrow=c(2,2))
+plot(fit1)
+contrasts(Carseats$ShelveLoc)
+###Writing R functions
+regplot=function(x,y){
+  fit=lm(y~x)
+  plot(x,y)
+  abline(fit,col="red")
+}
+
+regplot(Carseats$Price,Carseats$Sales)
+```
+
