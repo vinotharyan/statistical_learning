@@ -1,0 +1,95 @@
+---
+title: "Logistic regression and LDA"
+author: "Vinoth Aryan Nagabosshanam"
+date: "May 24, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+# logistic regression model 
+building a model in a simple stack market data set
+```{r}
+library(ISLR)
+#View(Smarket)
+colnames(Smarket)
+#str(Smarket)
+summary(Smarket)
+
+```
+
+# to check the corelation between the varience and we use the pair
+```{r}
+pairs(Smarket,col=Smarket$Direction)
+library(corrgram)
+corrgram(Smarket)
+```
+
+# we are bulid the logistic regression model where y is direction x is other variabale as input data
+```{r}
+model_1<-glm(Direction~.-Year -Today,data=Smarket,family = binomial)
+summary(model_1)
+
+exp(coef(model_1))
+
+prob <- predict(model_1,type=c("response"),Smarket)
+#prob
+confusion<-table(prob>0.5,Smarket$Direction)
+confusion
+
+# check the accuracy of the model
+Accuracy<-sum(diag(confusion)/sum(confusion))
+Accuracy
+```
+# Make training and test set
+```{r}
+train = Smarket$Year<2005
+
+model_t<-glm(Direction~.-Year -Today,data=Smarket,family = binomial,subset=train)
+summary(model_t)
+
+exp(coef(model_t))
+
+probs <- predict(model_t,type=c("response"),newdata=Smarket[!train,])
+#prob
+year_2005=Smarket$Direction[!train]
+confusi<-table(probs>0.5,year_2005)
+confusi
+
+#find the accuarcy
+accura<-sum(diag(confusi)/sum(confusi))
+accura
+```
+
+#Fit smaller model
+```{r}
+glm_fit=glm(Direction~Lag1+Lag2,
+            data=Smarket,family=binomial, subset=train)
+mprobs=predict(glm_fit,newdata=Smarket[!train,],type="response") 
+
+confus<-table(mprobs>0.5,year_2005)
+confus
+
+#find the accuarcy
+accur<-sum(diag(confus)/sum(confus))
+accur
+
+
+```
+
+
+# same data set apply on Linear Discriminant Analysis
+
+```{r}
+library(MASS)
+lda_model=lda(Direction~Lag1+Lag2,data=Smarket, subset=Year<2005)
+lda_model
+plot(lda_model)
+Smarket.2005=subset(Smarket,Year==2005)
+lda_pred=predict(lda_model,Smarket.2005)
+class(lda_pred)
+data.frame(lda_pred)[1:5,]
+table(lda_pred$class,Smarket.2005$Direction)
+mean(lda_pred$class==Smarket.2005$Direction)
+
+```
+
