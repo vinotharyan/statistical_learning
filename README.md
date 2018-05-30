@@ -1,2 +1,3 @@
-# statistical_learning
-statistical_learning  is course which offered by Stanford university through which a learned all the machine algorithms. 
+# statistical Learning
+I have implemented various machine learning algorthims in R using various dataset.
+
